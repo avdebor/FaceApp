@@ -1,0 +1,1 @@
+./hashcat.exe -a 0 -m 22000 test.22000 example.dict
