@@ -1,9 +1,10 @@
 import shutil
 import cv2 
+import os
 from deepface import DeepFace
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-
+import time
 
 def process_file(file_name):
     img = cv2.imread(f"img/{file_name}")
@@ -36,5 +37,5 @@ async def file_upload(file: UploadFile = File(...)):
         shutil.copyfileobj(file.file, buffer)    
         print("starting file processing")
         results = process_file(file.filename)
-
+    
     return {"analysis_results" : results}

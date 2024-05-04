@@ -40,6 +40,8 @@ const FileUpload = (props) => {
 
         // Update analysisData state with responseData
         setAnalysisData(responseData);
+        console.log("Analysis Data:", responseData); // Add this line to check the value
+        props.changeData(responseData); // Ensure this line is called
 
         if (!response.ok) {
           throw new Error("Upload failed");
@@ -47,7 +49,9 @@ const FileUpload = (props) => {
         // Optionally, reset the form after successful upload
         setFileName("No selected file");
         setImage(null);
-        spawnToast("success", "File succesfully uploaded");
+        spawnToast("success", "File successfully uploaded");
+
+        props.changePage(1);
       } catch (error) {
         spawnToast("error", "An unknown error has occurred");
         console.error("Error uploading file:", error);
