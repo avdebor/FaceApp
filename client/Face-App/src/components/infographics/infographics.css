@@ -1,0 +1,24 @@
+.RawAccordionContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+.infographics_container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.json_data_holder {
+  background-color: #343434;
+  color: #bdbdbd;
+}
+
+.raw_data_button_wrap {
+  text-align: left;
+}

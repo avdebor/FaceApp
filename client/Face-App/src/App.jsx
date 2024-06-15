@@ -14,7 +14,7 @@ function App() {
       {page === 0 ? (
         <FileUpload changeData={(data) => setData(data)} changePage={setPage} />
       ) : (
-        <Infographics data={data} />
+        <Infographics data={data} changePage={setPage} />
       )}
 
       {/* <button
