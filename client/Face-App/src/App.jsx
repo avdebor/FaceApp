@@ -16,14 +16,6 @@ function App() {
       ) : (
         <Infographics data={data} changePage={setPage} />
       )}
-
-      {/* <button
-        onClick={() => {
-          console.log(data);
-        }}
-      >
-        bebr
-      </button> */}
     </div>
   );
 }
