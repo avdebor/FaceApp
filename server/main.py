@@ -1,6 +1,5 @@
 import shutil
 import cv2 
-import os
 from deepface import DeepFace
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
