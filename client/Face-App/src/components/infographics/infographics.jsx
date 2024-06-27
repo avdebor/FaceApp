@@ -7,16 +7,72 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import { Container } from "@mui/material";
+import { Container, Box } from "@mui/material";
 import Chip from "@mui/material/Chip";
 import Badge from "@mui/material/Badge";
 import Tooltip from "@mui/material/Tooltip";
 import { PieChart } from "@mui/x-charts/PieChart";
-// import { BarChart } from "@mui/x-charts/BarChart";
-// import { axisClasses } from "@mui/x-charts/ChartsAxis";
+import { BarChart } from "@mui/x-charts/BarChart";
+import { axisClasses } from "@mui/x-charts/ChartsAxis";
 
 function Infographics({ data, changePage }) {
-  console.log("Data from infographics component:", data);
+  const emotion = data.analysis_results[0].emotion;
+  const race = data.analysis_results[0].race;
+
+  const valueFormatter = (value) => `${value}%`;
+
+  const emotionChartSetting = {
+    yAxis: [
+      {
+        label: "Emotion Percentage (%)",
+      },
+    ],
+    series: [
+      {
+        dataKey: "value",
+        label: "Detected emotion",
+        valueFormatter,
+      },
+    ],
+    height: 300,
+    sx: {
+      [`& .${axisClasses.directionY} .${axisClasses.label}`]: {
+        transform: "translateX(-10px)",
+      },
+    },
+  };
+
+  const raceChartSettings = {
+    yAxis: [
+      {
+        label: "Race Percentage (%)",
+      },
+    ],
+    series: [
+      {
+        dataKey: "value",
+        label: "Detected race",
+        valueFormatter,
+      },
+    ],
+    height: 300,
+    sx: {
+      [`& .${axisClasses.directionY} .${axisClasses.label}`]: {
+        transform: "translateX(-10px)",
+      },
+    },
+  };
+
+  // Convert emotion object to an array
+  const emotionDataArray = Object.keys(emotion).map((key) => ({
+    name: key,
+    value: parseFloat(emotion[key].toFixed(2)),
+  }));
+
+  const raceDataArray = Object.keys(race).map((key) => ({
+    name: key,
+    value: parseFloat(race[key].toFixed(3)),
+  }));
 
   const copyData = async (data) => {
     try {
@@ -55,7 +111,7 @@ function Infographics({ data, changePage }) {
                 />
               </Badge>
             </Tooltip>
-            <Typography variant="h6" component="h">
+            <Typography variant="h6" component="span">
               <b> : {JSON.stringify(data.analysis_results[0].age)}</b>
             </Typography>
           </div>
@@ -63,7 +119,7 @@ function Infographics({ data, changePage }) {
         <div className="inline_data_container">
           <div>
             <Chip label="Predicted Dominant Gender" variant="outlined" />
-            <Typography variant="h6" component="h">
+            <Typography variant="h6" component="span">
               <b>
                 {" "}
                 :{" "}
@@ -73,29 +129,36 @@ function Infographics({ data, changePage }) {
               </b>
             </Typography>
           </div>
-          <Typography variant="h6" component="h">
+          <Typography variant="h6" component="span">
             Gender Ratio:
           </Typography>
-          <PieChart
-            series={[
-              {
-                data: [
-                  {
-                    id: 0,
-                    value: parseFloat(data.analysis_results[0].gender.Man),
-                    label: "Man",
-                  },
-                  {
-                    id: 1,
-                    value: parseFloat(data.analysis_results[0].gender.Woman),
-                    label: "Woman",
-                  },
-                ],
-              },
-            ]}
-            width={400}
-            height={200}
-          />
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            width="100%"
+          >
+            <PieChart
+              series={[
+                {
+                  data: [
+                    {
+                      id: 0,
+                      value: parseFloat(data.analysis_results[0].gender.Man),
+                      label: "Man",
+                    },
+                    {
+                      id: 1,
+                      value: parseFloat(data.analysis_results[0].gender.Woman),
+                      label: "Woman",
+                    },
+                  ],
+                },
+              ]}
+              width={400} // increased width
+              height={400} // increased height
+            />
+          </Box>
         </div>
         <div className="inline_data_container">
           <div>
@@ -119,7 +182,7 @@ function Infographics({ data, changePage }) {
                 />
               </Badge>
             </Tooltip>
-            <Typography variant="h6" component="h">
+            <Typography variant="h6" component="span">
               <b>
                 {" "}
                 :{" "}
@@ -128,6 +191,44 @@ function Infographics({ data, changePage }) {
                 ).replaceAll('"', "")}
               </b>
             </Typography>
+          </div>
+          <div className="barchart_container">
+            <BarChart
+              dataset={emotionDataArray}
+              xAxis={[
+                {
+                  scaleType: "band",
+                  dataKey: "name", // Use "name" for the x-axis key
+                },
+              ]}
+              {...emotionChartSetting}
+            />
+          </div>
+        </div>
+        <div className="inline_data_container">
+          <div>
+            <Chip label="Dominant Race" variant="outlined" />
+            <Typography variant="h6" component="span">
+              <b>
+                {" "}
+                :{" "}
+                {JSON.stringify(
+                  data.analysis_results[0].dominant_race
+                ).replaceAll('"', "")}
+              </b>
+            </Typography>
+          </div>
+          <div className="barchart_container">
+            <BarChart
+              dataset={raceDataArray}
+              xAxis={[
+                {
+                  scaleType: "band",
+                  dataKey: "name", // Use "name" for the x-axis key
+                },
+              ]}
+              {...raceChartSettings}
+            />
           </div>
         </div>
         <div className="RawAccordionContainer">

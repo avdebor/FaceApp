@@ -12,11 +12,14 @@
   justify-content: center;
   text-align: center;
   padding: 20px;
+  width: 100%;
+  box-sizing: border-box; /* Ensure padding is included in width */
 }
 
 .json_data_holder {
   background-color: #343434;
   color: #bdbdbd;
+  word-wrap: break-word;
 }
 
 .raw_data_button_wrap {
@@ -30,4 +33,10 @@
   cursor: pointer;
   gap: 10px;
   margin-top: 20px;
+  width: 100%; /* Ensure it takes full width of the parent */
+  box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+.barchart_container {
+  margin-top: 15px;
 }

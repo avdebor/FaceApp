@@ -114,14 +114,16 @@ const FileUpload = (props) => {
             />
           </span>
         </section>
-        <Button
-          endIcon={<IoSend />}
-          variant="contained"
-          type="submit"
-          form="fileUploadForm"
-        >
-          Submit
-        </Button>
+        <div className="button-container">
+          <Button
+            endIcon={<IoSend />}
+            variant="contained"
+            type="submit"
+            form="fileUploadForm"
+          >
+            Submit
+          </Button>
+        </div>
       </main>
       <AlertSnackbar message={snackContent} status={snackStatus} />
     </div>

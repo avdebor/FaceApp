@@ -12,7 +12,12 @@ function App() {
   return (
     <div className="container">
       {page === 0 ? (
-        <FileUpload changeData={(data) => setData(data)} changePage={setPage} />
+        <div className="file_uploader">
+          <FileUpload
+            changeData={(data) => setData(data)}
+            changePage={setPage}
+          />
+        </div>
       ) : (
         <Infographics data={data} changePage={setPage} />
       )}
