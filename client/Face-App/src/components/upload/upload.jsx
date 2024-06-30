@@ -19,12 +19,12 @@ const FileUpload = (props) => {
   }, [analysisData, props]);
 
   const spawnToast = (status, text) => {
-    setSnackContent(<>{text}</>);
-    setSnackStatus(String(status));
+    setSnackContent(text);
+    setSnackStatus(status);
   };
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    event.preventDefault(); // Prevent default form submission behavior
     if (image) {
       try {
         const formData = new FormData();
@@ -35,26 +35,20 @@ const FileUpload = (props) => {
           body: formData,
         });
 
-        // Parse response as JSON
-        const responseData = await response.json();
-
-        // Update analysisData state with responseData
-        setAnalysisData(responseData);
-        console.log("Analysis Data:", responseData); // Add this line to check the value
-        props.changeData(responseData); // Ensure this line is called
-
         if (!response.ok) {
           throw new Error("Upload failed");
         }
-        // Optionally, reset the form after successful upload
-        setFileName("No selected file");
-        setImage(null);
-        spawnToast("success", "File successfully uploaded");
 
-        props.changePage(1);
+        const responseData = await response.json();
+        setAnalysisData(responseData);
+        console.log("Analysis Data:", responseData); // Log response data for debugging
+        props.changeData(responseData);
+
+        spawnToast("success", "File successfully uploaded");
+        props.changePage(1); // Change page state to navigate to next step
       } catch (error) {
-        spawnToast("error", "An unknown error has occurred");
         console.error("Error uploading file:", error);
+        spawnToast("error", "An unknown error has occurred");
       }
     } else {
       spawnToast("error", "No image chosen");
@@ -75,8 +69,8 @@ const FileUpload = (props) => {
             className="input-field"
             hidden
             onChange={({ target: { files } }) => {
-              files[0] && setFileName(files[0].name);
-              if (files) {
+              if (files.length > 0) {
+                setFileName(files[0].name);
                 setImage(files[0]);
               }
             }}
@@ -108,7 +102,7 @@ const FileUpload = (props) => {
             {fileName} -
             <MdDelete
               onClick={() => {
-                setFileName("No selected File");
+                setFileName("No selected file");
                 setImage(null);
               }}
             />
@@ -120,6 +114,7 @@ const FileUpload = (props) => {
             variant="contained"
             type="submit"
             form="fileUploadForm"
+            onClick={handleSubmit}
           >
             Submit
           </Button>

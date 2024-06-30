@@ -14,8 +14,27 @@ import Tooltip from "@mui/material/Tooltip";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { axisClasses } from "@mui/x-charts/ChartsAxis";
+import { useEffect } from "react";
 
 function Infographics({ data, changePage }) {
+  //* track the user when he is closing the tab or refreshing the page
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      const pos_data = JSON.stringify({ name: data.mashed_file_id });
+      navigator.sendBeacon("http://127.0.0.1:8000/api/cleanfile/", pos_data);
+      // Custom message for some browsers
+      const message = "Do you really want to exit?";
+      event.preventDefault();
+      event.returnValue = message;
+      return message;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [data.mashed_file_id]);
+
   const emotion = data.analysis_results[0].emotion;
   const race = data.analysis_results[0].race;
 
@@ -85,7 +104,7 @@ function Infographics({ data, changePage }) {
   return (
     <div className="infographics_container">
       <Container maxWidth="lg">
-        <Typography variant="h2" gutterBottom>
+        <Typography variant="h2" gutterBottom style={{ fontWeight: 600 }}>
           Analysis result
         </Typography>{" "}
         <br />
