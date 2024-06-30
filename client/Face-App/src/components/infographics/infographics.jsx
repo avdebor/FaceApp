@@ -7,7 +7,7 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
-import { Container, Box } from "@mui/material";
+import { Container, Box, CardMedia } from "@mui/material";
 import Chip from "@mui/material/Chip";
 import Badge from "@mui/material/Badge";
 import Tooltip from "@mui/material/Tooltip";
@@ -17,15 +17,27 @@ import { axisClasses } from "@mui/x-charts/ChartsAxis";
 import { useEffect } from "react";
 
 function Infographics({ data, changePage }) {
+  console.log(data);
+
   //* track the user when he is closing the tab or refreshing the page
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
+    const handleBeforeUnload = async (event) => {
       const pos_data = JSON.stringify({ name: data.mashed_file_id });
-      navigator.sendBeacon("http://127.0.0.1:8000/api/cleanfile/", pos_data);
       // Custom message for some browsers
       const message = "Do you really want to exit?";
       event.preventDefault();
       event.returnValue = message;
+
+      // Using fetch with keepalive option
+      await fetch("http://127.0.0.1:8000/api/cleanfile/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: pos_data,
+        keepalive: true,
+      });
+
       return message;
     };
 
@@ -107,6 +119,32 @@ function Infographics({ data, changePage }) {
         <Typography variant="h2" gutterBottom style={{ fontWeight: 600 }}>
           Analysis result
         </Typography>{" "}
+        <Box
+          sx={{
+            width: 300,
+            height: 300,
+            display: "flex",
+            justifyContent: "left",
+            alignItems: "left",
+            flexDirection: "column",
+          }}
+        >
+          {/* <div>
+            <Chip label="Predicted Dominant Gender" variant="outlined" />
+          </div> */}
+          {/* <img src={`data:image/png;base64,${data.mashed_file}`}></img> */}
+          <CardMedia
+            component="img"
+            src={`data:image/png;base64,${data.mashed_file}`}
+            alt="Fetched from API"
+            sx={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              marginTop: "20",
+            }}
+          ></CardMedia>
+        </Box>
         <br />
         <div className="inline_data_container">
           <div>

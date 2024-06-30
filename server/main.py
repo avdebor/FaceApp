@@ -8,7 +8,7 @@ import os
 import string 
 import random
 from pydantic import BaseModel
-
+import base64
 
 def process_file(file_name):
     img = cv2.imread(f"img/{file_name}")
@@ -45,6 +45,7 @@ async def root():
 
 @app.post("/api/cleanfile/")
 async def file_cleanup(filename: filename):
+    print("starting with file removement")
     os.remove(f"img/mashed/{filename.name}")
     return{"message": f"file {filename.name} cash was cleaned"}
 
@@ -58,6 +59,10 @@ async def file_upload(file: UploadFile = File(...)):
         print(f"mash created: {mashed_file_name}")
         print("starting file processing")
         results = process_file(file.filename)
-    
+        with open(f"img/mashed/{mashed_file_name}", "rb") as file:
+            encoded_file = base64.b64encode(file.read()).decode('utf-8')
+
+
     return {"analysis_results" : results,
-            "mashed_file_id": mashed_file_name}
+            "mashed_file_id": mashed_file_name,
+            "mashed_file": encoded_file}
