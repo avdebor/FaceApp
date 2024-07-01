@@ -9,10 +9,10 @@ from uuid import uuid4
 import os
 import base64
 
-prefix_to_mashed_namefile = "mashed"
-prefix_to_uploaded_namefile = "uploaded"
-FILE_UPLOADED_PATH = os.path.abspath(os.path.join(os.curdir, "uploaded"))
-FILE_MASHED_PATH = os.path.abspath(os.path.join(os.curdir, FILE_UPLOADED_PATH, "mashed"))
+PREFIX_TO_MASHED_NAMEFILE = "mashed"
+PREFIX_TO_UPLOADED_NAMEFILE = "uploaded"
+FILE_UPLOADED_PATH_DIR = os.path.abspath(os.path.join(os.curdir, "uploaded"))
+FILE_MASHED_PATH_DIR = os.path.abspath(os.path.join(os.curdir, FILE_UPLOADED_PATH_DIR, "mashed"))
 
 app = FastAPI()
 
@@ -49,8 +49,8 @@ async def root():
 @app.post("/api/uploadfiles/")
 async def file_upload(file: UploadFile = File(...)):
     unique_id = id_generator()
-    uploaded_file_path = f"{FILE_UPLOADED_PATH}{prefix_to_uploaded_namefile + unique_id}"
-    mashed_file_path = f"{FILE_MASHED_PATH}{prefix_to_mashed_namefile + unique_id}"
+    uploaded_file_path = f"{FILE_UPLOADED_PATH_DIR}{PREFIX_TO_UPLOADED_NAMEFILE + unique_id}"
+    mashed_file_path = f"{FILE_MASHED_PATH_DIR}{PREFIX_TO_MASHED_NAMEFILE + unique_id}"
 
     with open(uploaded_file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
@@ -73,8 +73,8 @@ async def file_upload(file: UploadFile = File(...)):
 
 
 def remove_processed_files_by_id(_id: str) -> None:
-    uploaded_file_path = os.path.abspath(FILE_UPLOADED_PATH + prefix_to_uploaded_namefile + _id)
-    mashed_file_path = os.path.abspath(FILE_MASHED_PATH + prefix_to_mashed_namefile + _id)
+    uploaded_file_path = os.path.abspath(FILE_UPLOADED_PATH_DIR + PREFIX_TO_UPLOADED_NAMEFILE + _id)
+    mashed_file_path = os.path.abspath(FILE_MASHED_PATH_DIR + PREFIX_TO_MASHED_NAMEFILE + _id)
 
     if os.path.exists(uploaded_file_path) and os.path.exists(mashed_file_path):
         os.remove(uploaded_file_path)
@@ -94,8 +94,8 @@ async def remove_proccessed_files_middleware(request: Request, call_next) -> Res
 
 @app.on_event("startup")
 async def startup():
-    if not os.path.exists(FILE_UPLOADED_PATH):
-        os.mkdir(FILE_UPLOADED_PATH)
+    if not os.path.exists(FILE_MASHED_PATH_DIR):
+        os.mkdir(FILE_MASHED_PATH_DIR)
 
-    if not os.path.exists(FILE_MASHED_PATH):
-        os.mkdir(FILE_MASHED_PATH)
+    if not os.path.exists(FILE_UPLOADED_PATH_DIR):
+        os.mkdir(FILE_UPLOADED_PATH_DIR)
