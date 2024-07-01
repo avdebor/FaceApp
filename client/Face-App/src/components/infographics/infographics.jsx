@@ -14,38 +14,9 @@ import Tooltip from "@mui/material/Tooltip";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { axisClasses } from "@mui/x-charts/ChartsAxis";
-import { useEffect } from "react";
 
 function Infographics({ data, changePage }) {
   console.log(data);
-
-  //* track the user when he is closing the tab or refreshing the page
-  useEffect(() => {
-    const handleBeforeUnload = async (event) => {
-      const pos_data = JSON.stringify({ name: data.mashed_file_id });
-      // Custom message for some browsers
-      const message = "Do you really want to exit?";
-      event.preventDefault();
-      event.returnValue = message;
-
-      // Using fetch with keepalive option
-      await fetch("http://127.0.0.1:8000/api/cleanfile/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: pos_data,
-        keepalive: true,
-      });
-
-      return message;
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [data.mashed_file_id]);
 
   const emotion = data.analysis_results[0].emotion;
   const race = data.analysis_results[0].race;
@@ -129,10 +100,6 @@ function Infographics({ data, changePage }) {
             flexDirection: "column",
           }}
         >
-          {/* <div>
-            <Chip label="Predicted Dominant Gender" variant="outlined" />
-          </div> */}
-          {/* <img src={`data:image/png;base64,${data.mashed_file}`}></img> */}
           <CardMedia
             component="img"
             src={`data:image/png;base64,${data.mashed_file}`}

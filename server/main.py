@@ -11,7 +11,7 @@ import base64
 
 PREFIX_TO_MASHED_NAMEFILE = "mashed"
 PREFIX_TO_UPLOADED_NAMEFILE = "uploaded"
-FILE_UPLOADED_PATH_DIR = os.path.abspath(os.path.join(os.curdir, "uploaded"))
+FILE_UPLOADED_PATH_DIR = os.path.abspath(os.path.join(os.curdir, "img"))
 FILE_MASHED_PATH_DIR = os.path.abspath(os.path.join(os.curdir, FILE_UPLOADED_PATH_DIR, "mashed"))
 
 app = FastAPI()
@@ -49,11 +49,14 @@ async def root():
 @app.post("/api/uploadfiles/")
 async def file_upload(file: UploadFile = File(...)):
     unique_id = id_generator()
-    uploaded_file_path = f"{FILE_UPLOADED_PATH_DIR}{PREFIX_TO_UPLOADED_NAMEFILE + unique_id}"
-    mashed_file_path = f"{FILE_MASHED_PATH_DIR}{PREFIX_TO_MASHED_NAMEFILE + unique_id}"
+    uploaded_file_path = f"{FILE_UPLOADED_PATH_DIR}{PREFIX_TO_UPLOADED_NAMEFILE + unique_id + os.path.splitext(file.filename)[1]}"
+    mashed_file_path = f"{FILE_MASHED_PATH_DIR}{PREFIX_TO_MASHED_NAMEFILE + unique_id + os.path.splitext(file.filename)[1]}"
 
     with open(uploaded_file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+
+    print(uploaded_file_path)
+    print(mashed_file_path)
 
     mash(uploaded_file_path, mashed_file_path)
     print(f"mash created: {mashed_file_path}", "starting file processing", sep="\n")
