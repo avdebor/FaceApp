@@ -1,29 +1,25 @@
 import shutil
-import cv2 
+import cv2
 from deepface import DeepFace
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request, Response
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from helpers.mash import mash
+from uuid import uuid4
 import os
-import string 
-import random
-from pydantic import BaseModel
 import base64
 
-def process_file(file_name):
-    img = cv2.imread(f"img/{file_name}")
-    results = DeepFace.analyze(img,  actions=("emotion", "age", "gender", "race"))
-    return results
-
-def id_generator(size=9, chars=string.ascii_uppercase + string.digits):
-    return ''.join(random.choice(chars) for _ in range(size))
+prefix_to_mashed_namefile = "mashed"
+prefix_to_uploaded_namefile = "uploaded"
+FILE_UPLOADED_PATH = os.path.abspath(os.path.join(os.curdir, "uploaded"))
+FILE_MASHED_PATH = os.path.abspath(os.path.join(os.curdir, FILE_UPLOADED_PATH, "mashed"))
 
 app = FastAPI()
 
 # Configure CORS
 origins = [
     "http://127.0.0.1:5173",
-    "http://localhost:5173",  
+    "http://localhost:5173",
 ]
 
 app.add_middleware(
@@ -35,34 +31,71 @@ app.add_middleware(
 )
 
 
-class filename(BaseModel):
-    name: str
+def process_file(file_path):
+    img = cv2.imread(file_path)
+    results = DeepFace.analyze(img, actions=("emotion", "age", "gender", "race"))
+    return results
+
+
+def id_generator():
+    return uuid4().hex
+
 
 @app.get("/api/")
 async def root():
     return {"message": "Api server is running"}
 
 
-@app.post("/api/cleanfile/")
-async def file_cleanup(filename: filename):
-    print("starting with file removement")
-    os.remove(f"img/mashed/{filename.name}")
-    return{"message": f"file {filename.name} cash was cleaned"}
-
-
 @app.post("/api/uploadfiles/")
 async def file_upload(file: UploadFile = File(...)):
-    with open(f'img/{file.filename}', "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer) 
-        mashed_file_name = id_generator()+os.path.splitext(file.filename)[1]
-        mash(f"img/{file.filename}", f"img/mashed/{mashed_file_name}")   
-        print(f"mash created: {mashed_file_name}")
-        print("starting file processing")
-        results = process_file(file.filename)
-        with open(f"img/mashed/{mashed_file_name}", "rb") as file:
-            encoded_file = base64.b64encode(file.read()).decode('utf-8')
+    unique_id = id_generator()
+    uploaded_file_path = f"{FILE_UPLOADED_PATH}{prefix_to_uploaded_namefile + unique_id}"
+    mashed_file_path = f"{FILE_MASHED_PATH}{prefix_to_mashed_namefile + unique_id}"
+
+    with open(uploaded_file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    mash(uploaded_file_path, mashed_file_path)
+    print(f"mash created: {mashed_file_path}", "starting file processing", sep="\n")
+    results = process_file(uploaded_file_path)
+
+    with open(mashed_file_path, "rb") as file:
+        encoded_mashed_file = base64.b64encode(file.read()).decode('utf-8')
+
+    return JSONResponse({
+        "analysis_results": results,
+        "mashed_file": encoded_mashed_file
+    },
+        headers={
+            "X-PROCESSED-FIlES-ID": unique_id
+        }
+    )
 
 
-    return {"analysis_results" : results,
-            "mashed_file_id": mashed_file_name,
-            "mashed_file": encoded_file}
+def remove_processed_files_by_id(_id: str) -> None:
+    uploaded_file_path = os.path.abspath(FILE_UPLOADED_PATH + prefix_to_uploaded_namefile + _id)
+    mashed_file_path = os.path.abspath(FILE_MASHED_PATH + prefix_to_mashed_namefile + _id)
+
+    if os.path.exists(uploaded_file_path) and os.path.exists(mashed_file_path):
+        os.remove(uploaded_file_path)
+        os.remove(mashed_file_path)
+
+
+@app.middleware("http")
+async def remove_proccessed_files_middleware(request: Request, call_next) -> Response:
+    response: Response = await call_next(request)
+
+    if request.url.path in ["/api/uploadfiles/"]:
+        processed_files_id = response.headers.get("X-PROCESSED-FIlES-ID")
+        remove_processed_files_by_id(processed_files_id)
+
+    return response
+
+
+@app.on_event("startup")
+async def startup():
+    if not os.path.exists(FILE_UPLOADED_PATH):
+        os.mkdir(FILE_UPLOADED_PATH)
+
+    if not os.path.exists(FILE_MASHED_PATH):
+        os.mkdir(FILE_MASHED_PATH)

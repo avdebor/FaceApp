@@ -1,11 +1,13 @@
 import cv2
 import numpy as np
 
+
 def draw_mesh(image, points, color=(0, 255, 0), thickness=3):
     hull = cv2.convexHull(points)
     for i in range(len(hull)):
-        for j in range(i+1, len(hull)):
+        for j in range(i + 1, len(hull)):
             cv2.line(image, tuple(hull[i][0]), tuple(hull[j][0]), color, thickness)
+
 
 def mash(image_path, output_path):
     image = cv2.imread(image_path)
@@ -16,9 +18,9 @@ def mash(image_path, output_path):
 
     for (x, y, w, h) in faces:
         points = np.array([
-            [x, y], [x + w//2, y], [x + w, y],
-            [x, y + h//2], [x + w, y + h//2],
-            [x, y + h], [x + w//2, y + h], [x + w, y + h]
+            [x, y], [x + w // 2, y], [x + w, y],
+            [x, y + h // 2], [x + w, y + h // 2],
+            [x, y + h], [x + w // 2, y + h], [x + w, y + h]
         ])
         draw_mesh(image, points)
 
