@@ -270,7 +270,7 @@ function Infographics({ data, changePage }) {
                 sx={{ fontSize: "20px" }}
                 style={{ wordWrap: "break-word", width: "100%" }}
               >
-                {JSON.stringify(data)}
+                {JSON.stringify(data.analysis_results)}
               </Typography>
               <div className="raw_data_button_wrap">
                 <Button
@@ -278,7 +278,9 @@ function Infographics({ data, changePage }) {
                   variant="contained"
                   style={{ margin: "20px" }}
                   color="success"
-                  onClick={() => copyData(JSON.stringify(data))}
+                  onClick={() =>
+                    copyData(JSON.stringify(data.analysis_results))
+                  }
                 >
                   Copy to clipboard
                 </Button>

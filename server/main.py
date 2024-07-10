@@ -30,6 +30,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+#pragm config
+
+
 # Configure CORS
 origins = [
     "http://127.0.0.1:5173",
@@ -89,8 +92,9 @@ async def file_upload(file: UploadFile = File(...)):
     with open(uploaded_file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
     mash(uploaded_file_path, mashed_file_path)
+    var = "uploaded file " + uploaded_file_path.split("/")[-1] + ";" + " and mash created" + mashed_file_path.split("/")[-1]
     logger.debug(
-        f"uploaded file {uploaded_file_path.split("/")[-1]}; and mash created: {mashed_file_path.split("/")[-1]}"
+        var
     )
     results = process_file(uploaded_file_path)
     with open(mashed_file_path, "rb") as file:
@@ -122,7 +126,8 @@ def remove_processed_files_by_id(_id: str, file_extension: str) -> None:
     if os.path.exists(uploaded_file_path) and os.path.exists(mashed_file_path):
         os.remove(uploaded_file_path)
         os.remove(mashed_file_path)
-        logger.debug(f"files were deleted: {uploaded_file_path.split("/")[-1]}; {mashed_file_path.split("/")[-1]}")
+        var2 = "files were deleted:" + uploaded_file_path.split("/")[-1] + ";" + mashed_file_path.split("/")[-1]
+        logger.debug(var2)
 
 
 @app.middleware("http")
