@@ -95,9 +95,11 @@ function Infographics({ data, changePage }) {
             width: 300,
             height: 300,
             display: "flex",
-            justifyContent: "left",
-            alignItems: "left",
+            justifyContent: "center",
+            alignItems: "center",
             flexDirection: "column",
+            overflow: "hidden", // Ensure content doesn't overflow the box
+            backgroundColor: "white", // Optional: add background color
           }}
         >
           <CardMedia
@@ -105,12 +107,11 @@ function Infographics({ data, changePage }) {
             src={`data:image/png;base64,${data.mashed_file}`}
             alt="Fetched from API"
             sx={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              marginTop: "20",
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
             }}
-          ></CardMedia>
+          />
         </Box>
         <br />
         <div className="inline_data_container">

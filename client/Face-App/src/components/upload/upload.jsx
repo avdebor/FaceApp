@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
 import { IoSend } from "react-icons/io5";
 import AlertSnackbar from "../Alert/AlertComponent";
+import Preloader from "../preloader/Preloader";
 
 const FileUpload = (props) => {
   const [image, setImage] = useState(null);
@@ -12,6 +13,7 @@ const FileUpload = (props) => {
   const [analysisData, setAnalysisData] = useState([]);
   const [snackContent, setSnackContent] = useState("");
   const [snackStatus, setSnackStatus] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     console.log("Analysis Data updated:", analysisData);
@@ -24,6 +26,7 @@ const FileUpload = (props) => {
   };
 
   const handleSubmit = async (event) => {
+    setLoading(true);
     event.preventDefault(); // Prevent default form submission behavior
     if (image) {
       try {
@@ -43,17 +46,20 @@ const FileUpload = (props) => {
         setAnalysisData(responseData);
         console.log("Analysis Data:", responseData); // Log response data for debugging
         props.changeData(responseData);
-
+        setLoading(false);
         spawnToast("success", "File successfully uploaded");
         props.changePage(1); // Change page state to navigate to next step
       } catch (error) {
         console.error("Error uploading file:", error);
+        setLoading(false);
         spawnToast("error", "An unknown error has occurred");
       }
     } else {
       spawnToast("error", "No image chosen");
     }
   };
+
+  if (loading) return <Preloader />;
 
   return (
     <div>
