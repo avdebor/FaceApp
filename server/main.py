@@ -49,6 +49,7 @@ app.add_middleware(
 
 
 def join_path_dir_to_file(_id: str, path_to_dir: str, file_extension: str, name_file_prefix: str):
+    # print(name_file_prefix)
     path_to_file = os.path.join(
         path_to_dir,
         name_file_prefix + _id + file_extension
