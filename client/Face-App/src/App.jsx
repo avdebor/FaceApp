@@ -1,27 +1,18 @@
 import "./App.css";
-import FileUpload from "./components/upload/upload";
-import { useState } from "react";
-import Infographics from "./components/infographics/infographics";
+import Mainpage from "./components/MainPage/Mainpage";
+import NotFound from "./pages/404/404";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
-  const [data, setData] = useState([]);
-  const [page, setPage] = useState(0);
-
-  console.log("Current page:", page); // Add this line to check the value of page
-
   return (
-    <div className="container">
-      {page === 0 ? (
-        <div className="file_uploader">
-          <FileUpload
-            changeData={(data) => setData(data)}
-            changePage={setPage}
-          />
-        </div>
-      ) : (
-        <Infographics data={data} changePage={setPage} />
-      )}
-    </div>
+    <>
+      <BrowserRouter>
+        <Routes>
+          <Route index element={<Mainpage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 
